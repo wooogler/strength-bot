@@ -3,11 +3,30 @@
 require('dotenv').config();
 
 const express = require('express');
+const path = require('path');
 const request = require('request');
 const bodyParser = require('body-parser');
 const app = express().use(bodyParser.json());
+app.use(express.static(path.join(path.resolve(), 'public')))
 
 app.listen(process.env.PORT || 1337, () => console.log('webhook is listening'));
+
+app.get('/webhook', (req,res) => {
+  let VERIFY_TOKEN = 'dltkd627';
+
+  let mode = req.query['hub.mode'];
+  let token = req.query['hub.verify_token'];
+  let challenge = req.query['hub.challenge'];
+  
+  if(mode && token) {
+    if(mode === 'subscribe' && token === VERIFY_TOKEN) {
+      console.log('WEBHOOK_VERIFIED');
+      res.status(200).send(challenge);
+    }
+  } else {
+    res.sendStatus(403);
+  }
+})
 
 app.post('/webhook', (req,res) => {
   let body = req.body;
@@ -99,19 +118,3 @@ const callSendAPI = (sender_psid, response) => {
   })
 }
 
-app.get('/webhook', (req,res) => {
-  let VERIFY_TOKEN = 'dltkd627';
-
-  let mode = req.query['hub.mode'];
-  let token = req.query['hub.verify_token'];
-  let challenge = req.query['hub.challenge'];
-  
-  if(mode && token) {
-    if(mode === 'subscribe' && token === VERIFY_TOKEN) {
-      console.log('WEBHOOK_VERIFIED');
-      res.status(200).send(challenge);
-    }
-  } else {
-    res.sendStatus(403);
-  }
-})
