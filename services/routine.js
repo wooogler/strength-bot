@@ -23,7 +23,7 @@ module.exports = class Routine {
     ]
 
 
-    if (payload === 'TODAY_EXERCISE') {
+    if (payload.includes('TODAY_EXERCISE')) {
       response = [
         Response.genText('오늘 할 운동입니다.'),
         Response.genGenericTemplateSlide(exercises)

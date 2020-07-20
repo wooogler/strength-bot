@@ -40,7 +40,7 @@ module.exports = class Receive {
     if (Array.isArray(responses)) {
       let delay = 0;
       for (let response of responses) {
-        this.sendMessage(response, delay * 2000);
+        this.sendMessage(response, delay * 1000);
         delay++;
       }
     } else {
@@ -80,7 +80,7 @@ module.exports = class Receive {
     response = [
       console.log(`${this.user.psid} 유저에게 온 첨부 데이터: ${attachment}`),
       Response.genText('처음부터 다시 시작합니다.'),
-      Response.genQuickReply('무엇을 보시겠습니까?',[
+      Response.genQuickReply('무엇을 하시겠습니까?',[
         {
           title: '오늘의 운동',
           payload: 'TODAY_EXERCISE'
@@ -107,7 +107,7 @@ module.exports = class Receive {
     GraphAPi.callFBAEventsAPI(this.user.psid, payload);
     let response;
 
-    if(payload.includes('TODAY_ROUTINE')) {
+    if(payload.includes('TODAY_EXERCISE')) {
       response = Routine.handlePayload(payload);
     } else {
       response = {
