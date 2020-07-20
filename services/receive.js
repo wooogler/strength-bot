@@ -18,16 +18,22 @@ module.exports = class Receive {
     try {
       if(event.message) {
         let message = event.message;
+
         if(message.quick_reply) {
+          console.log('quick_reply');
           responses = this.handleQuickReply();
         } else if (message.attachments) {
+          console.log('attachments');
           responses = this.handleAttachmentMessage();
         } else if (message.text) {
+          console.log('text');
           responses = this.handleTextMessage();
         }
       } else if (event.postback) {
+        console.log('postback');
         responses = this.handlePostback();
       } else if (event.referral) {
+        console.log('referral');
         responses = this.handleReferral();
       }
     } catch(error) {
@@ -76,9 +82,9 @@ module.exports = class Receive {
     let response;
 
     let attachment = this.webhookEvent.message.attachments[0];
+    console.log(`${this.user.psid} 유저에게 온 첨부 데이터: ${attachment}`),
 
     response = [
-      console.log(`${this.user.psid} 유저에게 온 첨부 데이터: ${attachment}`),
       Response.genText('처음부터 다시 시작합니다.'),
       Response.genQuickReply('무엇을 하시겠습니까?',[
         {
@@ -100,6 +106,12 @@ module.exports = class Receive {
     return this.handlePayload(payload);
   }
 
+  handlePostback() {
+    let postback = this.webhookEvent.postback;
+    let payload = postback.payload;
+    return this.handlePayload(payload.toUpperCase());
+  }
+
   handlePayload(payload) {
     console.log(`${this.user.psid} 유저에게 온 Payload: ${payload}`);
 
@@ -118,7 +130,7 @@ module.exports = class Receive {
     return response;
   }
   
-  sendMessage(response,delay = 0) {
+  sendMessage(response, delay = 0) {
     if('delay' in response) {
       delay = response['delay'];
       delete response['delay'];
