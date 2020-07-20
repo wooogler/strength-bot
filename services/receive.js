@@ -60,7 +60,7 @@ module.exports = class Receive {
       Response.genQuickReply('무엇을 보시겠습니까?',[
         {
           title: '오늘의 운동 루틴',
-          payload: 'TODAY_ROUTINE'
+          payload: 'TODAY_EXERCISE'
         },
         {
           title: '지금까지 운동 기록',
