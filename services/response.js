@@ -1,7 +1,5 @@
 'use strict';
 
-const { response } = require("express");
-
 const exerciseButtons = (id) => {
   return ([
     Response.genPostbackButton('시작하기', 'START_EXERCISE'+id),
