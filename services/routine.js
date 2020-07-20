@@ -37,6 +37,8 @@ module.exports = class Routine {
         return ({...item, buttons: exerciseButtons(item.id)});
       })
 
+      console.log(exercises);
+
       response = [
         Response.genText('오늘 할 운동입니다.'),
         Response.genGenericTemplateSlide(exercises)

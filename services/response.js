@@ -38,15 +38,17 @@ module.exports = class Response {
 
   static genGenericTemplateSlide(items) {
     let response = {
-      type: 'template',
-      payload: {
-        template_type: 'generic',
-        elements: items.map((item) => ({
-          title: item.title,
-          subtitle: item.subtitle,
-          image_url: item.image_url,
-          buttons: item.buttons,
-        }))
+      attachment: {
+        type: 'template',
+        payload: {
+          template_type: 'generic',
+          elements: items.map((item) => ({
+            title: item.title,
+            subtitle: item.subtitle,
+            image_url: item.image_url,
+            buttons: item.buttons,
+          }))
+        }
       }
     }
     
