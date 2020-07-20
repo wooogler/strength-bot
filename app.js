@@ -9,6 +9,7 @@ const bodyParser = require('body-parser');
 const config = require('./services/config');
 const GraphAPi = require('./services/graph-api');
 const Receive = require('./services/receive');
+const User = require('./services/User')
 const app = express().use(bodyParser.json());
 
 let users = {};
