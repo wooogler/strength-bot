@@ -33,7 +33,7 @@ module.exports = class Routine {
         ])
       }
 
-      exercises = exercises_dummy.map((item) => {
+      let exercises = exercises_dummy.map((item) => {
         return ({...item, buttons: exerciseButtons(item.id)});
       })
 
