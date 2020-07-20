@@ -1,13 +1,5 @@
 'use strict';
 
-const exerciseButtons = (id) => {
-  return ([
-    Response.genPostbackButton('시작하기', 'START_EXERCISE'+id),
-    Response.genPostbackButton('관련 영상', 'SHOW_VIDEO_LIST'+id),
-    Response.genPostbackButton('변경하기', 'CHANGE_EXERCISE'+id),
-  ])
-}
-
 module.exports = class Response { 
   static genText(text) {
     let response = {
@@ -53,7 +45,7 @@ module.exports = class Response {
           title: item.title,
           subtitle: item.subtitle,
           image_url: item.image_url,
-          buttons: exerciseButtons(item.id)
+          buttons: item.buttons,
         }))
       }
     }

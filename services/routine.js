@@ -7,12 +7,12 @@ module.exports = class Routine {
   static handlePayload(payload) {
     let response; 
     
-    let exercises = [
+    let exercises_dummy = [
       {
         id: 1,
         image_url : 'https://lifeasmenhome.files.wordpress.com/2019/05/kisspng-squat-barbell-exercise-weight-training-lunge-barbell-squat-5b264642e91212.6421240615292350109547.png',
         title:'바벨 스쿼트',
-        subtitle: '달성 목표: 125kg * 5회'
+        subtitle: '달성 목표: 125kg * 5회',
       },
       {
         id: 2,
@@ -24,6 +24,19 @@ module.exports = class Routine {
 
 
     if (payload.includes('TODAY_EXERCISE')) {
+      //button 추가
+      const exerciseButtons = (id) => {
+        return ([
+          Response.genPostbackButton('시작하기', 'START_EXERCISE'+id),
+          Response.genPostbackButton('관련 영상', 'SHOW_VIDEO_LIST'+id),
+          Response.genPostbackButton('변경하기', 'CHANGE_EXERCISE'+id),
+        ])
+      }
+
+      exercises = exercises_dummy.map((item) => {
+        return ({...item, buttons: exerciseButtons(item.id)});
+      })
+
       response = [
         Response.genText('오늘 할 운동입니다.'),
         Response.genGenericTemplateSlide(exercises)
