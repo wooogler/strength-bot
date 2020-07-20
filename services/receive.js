@@ -107,8 +107,30 @@ module.exports = class Receive {
     let response;
 
     if(payload.includes('TODAY_ROUTINE')) {
-      let response = Routine.handlePayload(payload);
+      response = Routine.handlePayload(payload);
+    } else {
+      response = {
+        text: `기본 포스트백 메시지입니다. payload: ${payload}`
+      }
     }
+
+    return response;
+  }
+  
+  sendMessage(response,delay = 0) {
+    if('delay' in response) {
+      delay = response['delay'];
+      delete response['delay'];
+    }
+
+    let requestBody = {
+      recipient: {
+        id: this.user.psid
+      },
+      message: response
+    }
+
+    setTimeout(() => GraphAPi.callSendAPI(requestBody, delay));
   }
 
   

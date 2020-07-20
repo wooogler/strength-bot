@@ -7,10 +7,13 @@ const path = require('path');
 const request = require('request');
 const bodyParser = require('body-parser');
 const config = require('./services/config');
+const GraphAPi = require('./services/graph-api');
+const Receive = require('./services/receive');
 const app = express().use(bodyParser.json());
-app.use(express.static(path.join(path.resolve(), 'public')))
 
-app.listen(process.env.PORT || 1337, () => console.log('webhook is listening'));
+let users = {};
+
+app.use(express.static(path.join(path.resolve(), 'public')))
 
 app.get('/webhook', (req,res) => {
 
@@ -32,90 +35,36 @@ app.post('/webhook', (req,res) => {
   let body = req.body;
   if(body.object === 'page') {
     res.status(200).send('EVENT_RECEIVED');
-    body.entry.forEach((entry) => {
-      let webhook_event = entry.messaging[0];
-      console.log(webhook_event);
 
-      let sender_psid = webhook_event.sender.id;
-      console.log("Sender PSID: " + sender_psid);
-      if(webhook_event.message) {
-        handleMessage(sender_psid, webhook_event.message);
-      } else if(webhook_event.postback) {
-        handlePostback(sender_psid, webhook_event.postback);
+    body.entry.forEach((entry) => {
+      let webhookEvent = entry.messaging[0];
+      console.log(webhookEvent);
+      let senderPsid = webhookEvent.sender.id;
+      if(!(senderPsid in users)) {
+        let user = new User(senderPsid);
+
+        GraphAPi.getUserProfile(senderPsid)
+          .then(userProfile => {
+            user.setProfile(userProfile);
+          }).catch(error => {
+            console.log('Profile is unavailable: ', error);
+          }).finally(() => {
+            users[senderPsid] = user;
+            console.log('새로운 프로필 PSID: '+ senderPsid);
+            let receiveMessage = new Receive(users[senderPsid], webhookEvent);
+            return receiveMessage.handleMessage();
+          })
+      } else {
+        console.log('기존 프로필 PSID: '+senderPsid);
+        let receiveMessage = new Receive(users[senderPsid], webhookEvent);
+        return receiveMessage.handleMessage();
       }
     });
-    res.status(200).send('EVENT_RECEIVED');
   } else {
     res.sendStatus(404);
   }
 })
 
-const handleMessage = (sender_psid, received_message) => {
-  let response;
-  if(received_message.text) {
-    response = {
-      'text': `당신이 보낸 메시지: ${received_message.text}`
-    }
-  } else if (received_message.attachments) {
-    let attachment_url = received_message.attachments[0].payload.url;
-    response = {
-      'attachment': {
-        'type': 'template',
-        'payload': {
-          'template_type': 'generic',
-          'elements': [{
-            'title': 'Is this the right picture?',
-            'subtitle': 'Tap a button to answer.',
-            'image_url': attachment_url,
-            'buttons': [
-              {
-                'type': 'postback',
-                'title': 'Yes!',
-                'payload': 'yes',
-              },
-              {
-                'type': 'postback',
-                'title': 'No!',
-                'payload': 'no',
-              }
-            ]
-          }]
-        }
-      }
-    }
-  }
-  callSendAPI(sender_psid, response);
-}
-
-const handlePostback = (sender_psid, received_postback) => {
-  let response;
-  let { payload } = received_postback;
-  if(payload === 'yes') {
-    response = {'text': '감사!'} 
-  } else if (payload === 'no') {
-    response = {'text': '앗 죄송...'}
-  }
-  callSendAPI(sender_psid, response);
-}
-
-const callSendAPI = (sender_psid, response) => {
-  let request_body = {
-    'recipient': {
-      'id': sender_psid
-    },
-    'message': response
-  }
-  request({
-    "uri": 'https://graph.facebook.com/v2.6/me/messages',
-    'qs': {'access_token': process.env.PAGE_ACCESS_TOKEN},
-    'method': 'POST',
-    'json': request_body
-  }, (err, res, body) => {
-    if(!err) {
-      console.log('message sent!')
-    } else {
-      console.error('Unable to send message:'+err);
-    }
-  })
-}
-
+let listener = app.listen(config.port, function() {
+  console.log("Your app is listening on port " + listener.address().port);
+})
