@@ -44,6 +44,7 @@ module.exports = class Receive {
     }
     
     if (Array.isArray(responses)) {
+      console.log(responses);
       let delay = 0;
       for (let response of responses) {
         this.sendMessage(response, delay * 1000);
